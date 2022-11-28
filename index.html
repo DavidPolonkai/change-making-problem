@@ -1,0 +1,222 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pénzváltás probléma </title>
+        <style>
+            table,
+            th,
+            td {
+                border: 1px solid;
+                border-collapse: collapse;
+                min-width:30px;
+            }
+            table{
+                visibility: hidden;
+            }
+        </style>
+    <script>
+
+        function compareNumbers(a, b) {
+            return a - b;
+        }
+
+        function vTable(coins,sumOfMoney){
+            sumOfMoney++;
+            var x = new Array(sumOfMoney);
+
+            for (var i = 0; i < x.length; i++) {
+                x[i] = new Array(coins.length);
+                for (var j=0;j<x[i].length;j++){
+                    x[i][j]=false;
+                }
+            }
+
+            x[coins[0]][0] = coins[0]<=sumOfMoney;
+            for (var i=1;i<coins.length;i++){
+                for (var j=1;j<sumOfMoney;j++){
+                    x[j][i]=(coins[i]==j)||(x[j][i-1])||((j>coins[i])&&(x[j-coins[i]][i-1]));
+                }
+            }
+            return x
+        }
+
+        function customOptimal(coins, sumOfMoney){
+            let searched=sumOfMoney;
+            sumOfMoney++;
+            coins.unshift(0);
+            var v = new Array(sumOfMoney);
+            for (var i = 0; i < v.length; i++) {
+                v[i] = new Array(coins.length);
+                for (var j = 0; j < v[i].length; j++) {
+                    v[i][j] = coins.length+1;
+                }
+            }
+            for (var i=0;i<coins.length;i++){
+                v[0][i]=0
+            }
+            
+            for (var goal=1;goal<sumOfMoney;goal++){
+                for (var coinId=1;coinId<coins.length;coinId++){
+                    if (goal<coins[coinId]){
+                        v[goal][coinId] = v[goal][coinId-1];
+                    }
+                    else if (goal>=coins[coinId]){
+                        v[goal][coinId] = Math.min(v[goal][coinId-1],1+v[goal-coins[coinId]][coinId-1]);
+                    }
+                }
+            }
+
+            return findSolution(coins,searched,v)
+        }
+
+        function findSolution(coins, searched, v){
+            let opt = [];
+            let x=searched;
+            let i=coins.length-1;
+            let counter=0;
+            if (v[x][i]<=coins.length){
+                while(true){
+                    let min=v[x][i]
+                    while(v[x][i-1]<=min){
+                        min= v[x][i - 1]
+                        i--;
+                    }
+                    opt.push(coins[i]);
+                    x-=coins[i];
+                    i--;
+                    if (x==0){
+                        break;
+                    }
+                }
+            }
+            return [v, opt]
+        }
+
+        function findSolutionCustom(coins,searched,v){   
+            let opt = [] 
+            let minRequiredCoins=searched+1
+            for (var i=coins.length-1;i>=0;i--){
+                if (minRequiredCoins>=v[searched][i]){
+                    opt = new Array()
+                    opt.push(coins[i])
+                    minRequiredCoins=v[searched][i]
+                }
+                else if (minRequiredCoins<=searched){
+                    opt.push(coins[i])
+                }
+            }
+            let x=searched
+            let solution = []
+            if (minRequiredCoins<=searched){
+                for (var i=0;i<opt.length;i++){
+                    if (x-opt[i]>0){
+                        solution.push(opt[i])
+                        x -= opt[i]
+                    }
+                    else if (x-opt[i]==0){
+                        solution.push(opt[i])
+                        break
+                    }
+                }
+            }
+
+            return [v,solution]
+        }
+
+        function printSolutionText(sumOfMoney, solution) {
+                if (solution.length>0){
+                document.getElementById("solutionText").innerHTML =
+                    sumOfMoney + " pénz optimális felváltásához, "
+                    + solution.length +
+                    " érmét kell felhasználni (a "
+                    + solution + " érméket)."
+                }
+                else{
+                    document.getElementById("solutionText").innerHTML =
+                       "Nincs megoldás"
+                }
+        }
+        //19->1,2,3,6,10 10,2,3,6,1
+
+
+        function calculateOptimal(){
+            const coins = JSON.parse("[" + document.getElementById("coins").value + "]");
+            coins.sort(compareNumbers);
+            let sumOfMoney = parseInt(document.getElementById("sumOfMoney").value);
+            const results = customOptimal(coins,sumOfMoney);
+            const v = results[0];
+            printSolutionText(sumOfMoney,results[1]);
+            drawTable(coins,sumOfMoney,v);
+        }
+
+        function calculateTable() {
+            let coins = JSON.parse("[" + document.getElementById("coins").value + "]");
+            let sumOfMoney = parseInt(document.getElementById("sumOfMoney").value);
+            coins.sort(compareNumbers);
+            let table = vTable(coins, sumOfMoney);
+            drawTable(coins, sumOfMoney, table);
+        }
+
+        function drawTable(coins,sumOfMoney,data){
+            let innerHtml = "";
+            for (var col = data[0].length - 1; col >= 0; col--) {
+                if (coins[col]!=0){
+                    innerHtml += "<tr>"
+                    innerHtml += "<td><b>"
+                    innerHtml += coins[col]+" c"
+                    innerHtml += "</b></td>"
+                    for (var row = 1; row < data.length; row++) {
+                        innerHtml += "<td>"
+                        innerHtml += data[row][col]
+                        innerHtml += "</td>"
+
+                    }
+                    innerHtml += "</tr>"
+                }
+            }
+            innerHtml += "<tr>"
+            innerHtml += "<th>coins/sum</th>"
+            for (var i = 1; i <= sumOfMoney; i++) {
+                innerHtml += "<th>"
+                innerHtml += i
+                innerHtml += "</th>"
+            }
+            innerHtml += "</tr>"
+            tableTag = document.getElementById("table");
+            tableTag.style.visibility = "visible";
+            tableTag.innerHTML = innerHtml;
+
+
+        }
+
+
+    </script>
+
+
+</head>
+
+<body style="background-color: gray; font-family: 'Courier New', Courier, monospace;">
+    <h1 style="text-align: center;">Pénzváltás kalkulátor</h1>
+    <div style="color: white;">
+        <br>
+        <div>
+            <p>Érmék</p>
+                <input id="coins" type="text">
+                <p>Felváltandó összeg</p>
+                <input id="sumOfMoney" type="number">
+                <div style="margin: 20px;"></div>
+                <button onclick="calculateTable()">Tábla kalkuláció</button>
+                <button onclick="calculateOptimal()">Opzimális megoldás kalkuláció</button>
+        </div>
+    </div>
+    <br>
+    <div>
+        <table id="table"></table>
+    </div>
+    <br>
+    <div id="solutionText">
+    </div>
+</body>
+
+</html>
