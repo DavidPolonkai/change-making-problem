@@ -13,6 +13,9 @@
             }
             table{
                 visibility: hidden;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
             }
         </style>
     <script>
@@ -21,7 +24,7 @@
             return a - b;
         }
 
-        function vTable(coins,sumOfMoney){
+        function calculateBoolTable(coins,sumOfMoney){
             sumOfMoney++;
             var x = new Array(sumOfMoney);
 
@@ -41,7 +44,7 @@
             return x
         }
 
-        function customOptimal(coins, sumOfMoney){
+        function customOptimalFinder(coins, sumOfMoney){
             let searched=sumOfMoney;
             sumOfMoney++;
             coins.unshift(0);
@@ -67,10 +70,32 @@
                 }
             }
 
-            return findSolution(coins,searched,v)
+            return findOptimalSolutionFromTable(coins,searched,v)
         }
 
-        function findSolution(coins, searched, v){
+        function findInfinityCoinSolution(coins,sumOfMoney){
+            var table = new Array(sumOfMoney+1);
+            for (var i = 0; i <= sumOfMoney; i++) {
+                table[i]=0
+            } 
+
+            for (var i=1;i<=sumOfMoney+1;i++){
+                let minNumberOfCoin = Number.POSITIVE_INFINITY;
+                coins.forEach(coin => {
+                    if (coin <= i){
+                        if (table[i-coin]+1<minNumberOfCoin)
+                        {
+                            minNumberOfCoin = table[i-coin]+1
+                        }
+                    }
+                }); 
+                table[i] = minNumberOfCoin
+            }
+            return table[sumOfMoney]
+
+        }
+
+        function findOptimalSolutionFromTable(coins, searched, v){
             let opt = [];
             let x=searched;
             let i=coins.length-1;
@@ -79,7 +104,7 @@
                 while(true){
                     let min=v[x][i]
                     while(v[x][i-1]<=min){
-                        min= v[x][i - 1]
+                       min= v[x][i - 1]
                         i--;
                     }
                     opt.push(coins[i]);
@@ -138,24 +163,46 @@
                 }
         }
         //19->1,2,3,6,10 10,2,3,6,1
-
+        function printSolutionTextInfinity(sumOfMoney,solution){
+            if (solution != Number.POSITIVE_INFINITY) {
+                    let text = sumOfMoney + " pénz optimális felváltásához, "
+                    + solution +
+                    " érmét kell felhasználni"
+                document.getElementById("solutionText").innerHTML = text
+            }
+            else {
+                document.getElementById("solutionText").innerHTML =
+                    "Nincs megoldás"
+            }
+        }
 
         function calculateOptimal(){
+            clearView()
             const coins = JSON.parse("[" + document.getElementById("coins").value + "]");
             coins.sort(compareNumbers);
             let sumOfMoney = parseInt(document.getElementById("sumOfMoney").value);
-            const results = customOptimal(coins,sumOfMoney);
+            const results = customOptimalFinder(coins,sumOfMoney);
             const v = results[0];
             printSolutionText(sumOfMoney,results[1]);
             drawTable(coins,sumOfMoney,v);
         }
 
         function calculateTable() {
+            clearView()
             let coins = JSON.parse("[" + document.getElementById("coins").value + "]");
             let sumOfMoney = parseInt(document.getElementById("sumOfMoney").value);
             coins.sort(compareNumbers);
-            let table = vTable(coins, sumOfMoney);
+            let table = calculateBoolTable(coins, sumOfMoney);
             drawTable(coins, sumOfMoney, table);
+        }
+
+        function calculateInfinity(){
+            clearView()
+            let coins = JSON.parse("[" + document.getElementById("coins").value + "]");
+            let sumOfMoney = parseInt(document.getElementById("sumOfMoney").value);
+            coins.sort(compareNumbers);
+            let solution = findInfinityCoinSolution(coins,sumOfMoney)
+            printSolutionTextInfinity(sumOfMoney,solution)
         }
 
         function drawTable(coins,sumOfMoney,data){
@@ -190,6 +237,12 @@
 
         }
 
+        function clearView(){
+            tableTag = document.getElementById("table");
+            tableTag.style.visibility = "hidden";
+            document.getElementById("solutionText").innerHTML = "";
+        }
+
 
     </script>
 
@@ -207,7 +260,8 @@
                 <input id="sumOfMoney" type="number">
                 <div style="margin: 20px;"></div>
                 <button onclick="calculateTable()">Tábla kalkuláció</button>
-                <button onclick="calculateOptimal()">Opzimális megoldás kalkuláció</button>
+                <button onclick="calculateOptimal()">Optimális megoldás kalkuláció</button>
+                <button onclick="calculateInfinity()">Végtelen érme megoldás</button>
         </div>
     </div>
     <br>

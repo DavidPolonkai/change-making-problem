@@ -1,4 +1,6 @@
 \documentclass{beamer}
+\usepackage{mathtools}
+\usepackage{amssymb}
 %Information to be included in the title page:
 \title{Pénzváltás probléma}
 \author{Polonkai Dávid (GPNWZT)}
@@ -135,17 +137,47 @@
     Folytatva ezt a folyamatot \(B-a_i\)-re és \(i-1\)-re,\\ azaz $V[B-a_i,i-1]$-re addig, amíg $B=0$-t nem kapunk.
 \end{frame}
 \begin{frame}
-    
-    Megoldás csak akkor létezhet, ha az aktuális problémára nézve \(V[B,n]<\infty\). \newline
-    Keressük azt a legkisebb \(i\) értéket, amelyre \(V[B,i]\rightarrow min\), tehát $V[B,i-1]>V[B,i]$ (hiszen $a_i>a_{i-1}$). \newline
-    Ebből tujuk, hogy \(a_i\) pénz szerepel a \(B\) optimális felváltásában.\newline
-    Folytatva ezt a folyamatot \(B-a_i\)-re és \(i-1\)-re,\\ azaz $V[B-a_i,i-1]$-re addig, amíg $B=0$-t nem kapunk.
+    \frametitle{Végtelen aprópénz}
+    \textbf{Egy pénzösszeget akarunk pontosan kifizetni egy adott pénzrendszer címleteivel úgy,
+    hogy minimális számú pénzdarabot használunk fel és az egyes címletekből korlátlan mennyiség áll rendelkezésre}\\
+    \(n\) a pénzrendszer címleteinek a száma.\\
+    Legyen \(a_1,a_2,...,a_n\) az egyes címletek értékei.\newline
+    Legyen \(B\) a kifizetendő összeg.\newline
+    \(x_j\) egész szám a \(j\) címelet darabszámát mutatja.\newline  
+    Feltételek:  
+    \[\sum_{j=1}^{n}x_j \rightarrow min\]
+    \[\sum_{j=1}^{n}a_j x_j = B\]
+    Tehát a lehető legkevesebb címlettel fizessük ki a B összeget.
+\end{frame}
+\begin{frame}
+    \frametitle{Végtelen aprópénz}
+    $E(0)=0$
+    \[
+        E(B) = 1+min
+    \begin{rcases}
+        \begin{cases}
+        E(B-a_1) \text{ ahol }B-a_1>=0&&
+        E(B-a_2) \text{ ahol }B-a_2>=0&&
+        \dots &&
+        E(B-a_n) \text{ ahol }B-a_n>=0&&
+        \text{Ha mindegyik esetben }B-a_x < 0\text{,}\\\text{akkor nem bontható fel}&&
+        \end{cases}
+    \end{rcases}
+    \]
+    Ahol $E(x)$, az $x$ érték felbontásához szükséges érmék számát tartalmazza.
+    Mindezekből a rekurzív megoldás egyértelmű.
+\end{frame}
+\begin{frame}
+    \frametitle{Végtelen aprópénz dinamikus programozás}
+    Ha az előzőleg használt módszert használjuk, azaz eltároljuk a kiszámított megoldásokat, és $E(1)$-től $E(B)$-ig haladunk,
+    megkapjuk a dinamikus programozott megoldást.\\
 \end{frame}
 \begin{frame}
     \frametitle{Felhasznált irodalmak}
     1. Horváth Gyula Szegedi Tudományegyetem Természettudományi és Informatikai Kar Algoritmizálás jegyzet\\
     2. Dr. Házy Attila: Nemlineáris optimalizálás. (elektronikus jegyzet)\\
     3. J. W. Wright. 1975. The Change-Making Problem. J. ACM 22, 1 (Jan. 1975), 125–128. https://doi.org/10.1145/321864.321874\\
+    4. (BME Programozási stratégiák órai feladatok)
 \end{frame}
 \begin{frame}
     \textbf{KÖSZÖNÖM A FIGYELMET!}
