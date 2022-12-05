@@ -14,7 +14,7 @@
 \begin{frame}
 \frametitle{Pénzváltás probléma}
 \begin{itemize}
-    \item Egy pénzösszeget milyen módon tudunk elérni kisebb címletekből?
+    \item Egy pénzösszeget milyen módon tudunk megkapni kisebb címletek összegeiből?
     \item Hátizsák feladat speciális esete
     \item Dinamikus programozással megoldható (részekre bontás)
 \end{itemize}
@@ -50,12 +50,13 @@
     \frametitle{Pénzváltás probléma}
     \textbf{Létezik-e megoldás?}  \newline
     \(A = \{a_1,a_2,...,a_n\}\) a címletek halmaza.\newline
-    \(b\) egy pozitív egész szám.\newline
+    \(B\) egy pozitív egész szám.\newline
     \(\sum_{a \in S} = B\), ahol \(S \subseteq A\).\newline
     Megjegyzés: a címletek csak egyszer használhatóak fel, tehát \(x_j\) 0 vagy 1 lehet, és tetszőleges egész számok lehetnek.\newline
 \end{frame}
 \begin{frame}
     \frametitle{Létezik-e megoldás}
+    $i_k \le n$ és a felhasznált érméket azonosítja\\
     Egy megoldás:
     \[B = a_{i_1} + \dots + a_{i_k}, i_1 < ... <i_k\] \newline
     Ekkor 
@@ -67,6 +68,7 @@
     \frametitle{Részproblémákra bontás}
     Minden \((X,i)\) \((1 \leq X \leq B, 1 \leq i \leq n)\)számpárra,
     \(X\) felváltható-e az első \(a_1,...,a_i\) pénzzel. \newline
+    Jelölje $V(X,i)$ a $(X,i)$ részprobléma megoldását.\\
     \(V(X,i) = Igaz\), ha az első \(i\) pénzzel előállítható.   \newline
     \(V(X,i) = Hamis\), ha az első \(i\) pénzzel nem állíható elő.
 \end{frame}
@@ -77,13 +79,13 @@
     \begin{cases}
         X=a_i\vee &&
         i>1\wedge V(X,i-1)\vee&&
-        i>1\wedge >a_i\wedge V(X-a_i,i-1)&&
+        i>1\wedge X>a_i\wedge V(X-a_i,i-1)&&
     \end{cases}
     \]
 \end{frame}
 \begin{frame}
     \frametitle{Részproblémák eredménye (Táblázatos módszer)}
-    Kiszámítási sorrend módosítása, hogy először azokat számoljuk ki, amelyek szükségesek
+    Kiszámítási sorrend módosításával először azokat számoljuk ki, amelyek szükségesek
     a későbbi számításokhoz. \newline
     \((X,i)\) probléma összetevői: \((X,i-1)\) és \((X-a_i,i-1)\) \newline
     Ezért a következő táblázatot soronként alulról felfele, balról jobbra töltjük ki.
@@ -94,10 +96,10 @@
     \includegraphics[scale=0.6]{table.png}
 \end{frame}
 \begin{frame}
-    \frametitle{A Pénzváltás probléma, egy felváltás eloállítása}
+    \frametitle{A Pénzváltás probléma, egy felváltás előállítása}
     Megoldás csak akkor létezhet, ha az aktuális problémára nézve \(V[B,n]=Igaz\). \newline
     Keressük azt a legkisebb \(i\) értéket, amelyre \(V[B,i]=Igaz\), tehát $V[B,i-1]=Hamis$. \newline
-    Ebből tujuk, hogy \(a_i\) pénz szerepel a \(B\)-ben.\newline
+    Ebből tudjuk, hogy \(a_i\) pénz szerepel a \(B\)-ben.\newline
     Folytatva ezt a folyamatot \(B-a_i\)-re és \(i-1\)-re,\\ azaz $V[B-a_i,i-1]$-re addig, amíg $B=0$-t nem kapunk.
 \end{frame}
 \begin{frame}
@@ -118,9 +120,9 @@
         Opt(X,i) =
     \begin{cases}
         \infty & \text{ha } i=0\wedge X>0 \\
-        0 &\text{ha} X=0 \\
-        Opt(X,i-1)& \text{ha} X<a_i \\
-        min(Opt(X,i-1),\\1+Opt(X-a_i,i-1))& \text{ha} X \ge a_i
+        0 &\text{ha } X=0 \\
+        Opt(X,i-1)& \text{ha } X<a_i \\
+        min(Opt(X,i-1),\\1+Opt(X-a_i,i-1))& \text{ha } X \ge a_i
     \end{cases}
     \]
 \end{frame}
@@ -130,10 +132,10 @@
     A táblázatból a felváltás előállítását, a már bemutatott módszer módosításával hajthatjuk végre.
 \end{frame}
 \begin{frame}
-    \frametitle{Optimális pénzváltás, egy optimális felváltás előállítása}
+    \frametitle{Egy optimális felváltás előállítása}
     Megoldás csak akkor létezhet, ha az aktuális problémára nézve \(V[B,n]<\infty\). \newline
     Keressük azt a legkisebb \(i\) értéket, amelyre \(V[B,i]\rightarrow min\), tehát $V[B,i-1]>V[B,i]$ (hiszen $a_i>a_{i-1}$). \newline
-    Ebből tujuk, hogy \(a_i\) pénz szerepel a \(B\) optimális felváltásában.\newline
+    Ebből tudjuk, hogy \(a_i\) pénz szerepel a \(B\) optimális felváltásában.\newline
     Folytatva ezt a folyamatot \(B-a_i\)-re és \(i-1\)-re,\\ azaz $V[B-a_i,i-1]$-re addig, amíg $B=0$-t nem kapunk.
 \end{frame}
 \begin{frame}
@@ -165,7 +167,6 @@
     \end{rcases}
     \]
     Ahol $E(x)$, az $x$ érték felbontásához szükséges érmék számát tartalmazza.
-    Mindezekből a rekurzív megoldás egyértelmű.
 \end{frame}
 \begin{frame}
     \frametitle{Végtelen aprópénz dinamikus programozás}
